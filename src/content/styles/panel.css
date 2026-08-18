@@ -1,0 +1,219 @@
+.bsx-root {
+  position: fixed;
+  z-index: 2147483000;
+  width: 352px;
+  font-family: 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #1a2537;
+  user-select: none;
+}
+
+.bsx-root.collapsed {
+  width: auto;
+}
+
+.bsx-panel {
+  background: rgba(255, 255, 255, 0.97);
+  border-radius: 10px;
+  box-shadow: 0 4px 24px rgba(26, 37, 55, 0.16);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.bsx-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  background: rgba(43, 108, 212, 0.06);
+  cursor: move;
+  touch-action: none;
+}
+
+.bsx-badge {
+  flex: none;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fb7299;
+  background: rgba(251, 114, 153, 0.12);
+  border-radius: 999px;
+  padding: 1px 8px;
+}
+
+.bsx-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bsx-icon-btn {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #5b6b82;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.bsx-icon-btn:hover {
+  background: rgba(43, 108, 212, 0.1);
+  color: #2b6cd4;
+}
+
+.bsx-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+}
+
+.bsx-select {
+  max-width: 110px;
+  font-size: 12px;
+  color: #1a2537;
+  background: rgba(43, 108, 212, 0.07);
+  border: none;
+  border-radius: 999px;
+  padding: 2px 8px;
+  cursor: pointer;
+  outline: none;
+}
+
+.bsx-pill {
+  font-size: 12px;
+  font-weight: 500;
+  color: #2b6cd4;
+  background: rgba(43, 108, 212, 0.08);
+  border: none;
+  border-radius: 999px;
+  padding: 2px 10px;
+  cursor: pointer;
+}
+
+.bsx-pill:hover {
+  background: rgba(43, 108, 212, 0.16);
+}
+
+.bsx-pill.on {
+  color: #ffffff;
+  background: #2b6cd4;
+}
+
+.bsx-pill:disabled {
+  color: #9aa7b8;
+  background: rgba(91, 107, 130, 0.08);
+  cursor: default;
+}
+
+.bsx-status {
+  padding: 0 12px 5px;
+  font-size: 11px;
+  color: #5b6b82;
+}
+
+.bsx-error {
+  color: #d4506a;
+}
+
+.bsx-hint {
+  font-size: 12px;
+  color: #5b6b82;
+}
+
+.bsx-list {
+  max-height: 46vh;
+  min-height: 120px;
+  overflow-y: auto;
+  padding: 2px 6px 8px 4px;
+  user-select: text;
+}
+
+.bsx-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.bsx-list::-webkit-scrollbar-thumb {
+  background: rgba(91, 107, 130, 0.25);
+  border-radius: 3px;
+}
+
+.bsx-item {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 28px;
+}
+
+.bsx-item:hover {
+  background: rgba(43, 108, 212, 0.07);
+}
+
+.bsx-item.active {
+  background: rgba(251, 114, 153, 0.12);
+}
+
+.bsx-time {
+  flex: none;
+  font-family: Consolas, monospace;
+  font-size: 11px;
+  color: #8a97a8;
+}
+
+.bsx-item.active .bsx-time {
+  color: #fb7299;
+}
+
+.bsx-text {
+  font-size: 12.5px;
+  color: #2c3a50;
+}
+
+.bsx-item.active .bsx-text {
+  color: #1a2537;
+  font-weight: 600;
+}
+
+.bsx-empty {
+  padding: 14px 12px 16px;
+  text-align: center;
+}
+
+.bsx-toast {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -34px;
+  font-size: 12px;
+  color: #ffffff;
+  background: rgba(26, 37, 55, 0.9);
+  border-radius: 999px;
+  padding: 4px 14px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.bsx-fade-enter-active,
+.bsx-fade-leave-active {
+  transition: opacity 0.2s;
+}
+
+.bsx-fade-enter-from,
+.bsx-fade-leave-to {
+  opacity: 0;
+}
