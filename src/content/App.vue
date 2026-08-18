@@ -1,13 +1,27 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { loadSubtitles, setPref, state, switchTrack } from './store'
-import { buildSrt, plainText } from '../shared/srt'
+import { buildSrt } from '../shared/srt'
+import { buildCopyText } from '../shared/copyText'
+import { DEFAULT_COPY_SETTINGS, loadCopySettings, saveCopySettings, type CopySettings } from '../shared/settings'
 import SubtitleList from './components/SubtitleList.vue'
 
 const title = computed(() => state.bundle?.meta.title ?? 'B站字幕提取器')
 const owner = computed(() => state.bundle?.meta.owner ?? '')
 const entryCount = computed(() => state.bundle?.entries.length ?? 0)
 const trackCount = computed(() => state.bundle?.tracks.length ?? 0)
+
+const settings = reactive<CopySettings>({ ...DEFAULT_COPY_SETTINGS })
+const settingsOpen = ref(false)
+
+onMounted(async () => {
+  Object.assign(settings, await loadCopySettings())
+})
+
+function updateSettings(patch: Partial<CopySettings>) {
+  Object.assign(settings, patch)
+  saveCopySettings({ ...settings })
+}
 
 const toast = ref('')
 let toastTimer = 0
@@ -27,7 +41,7 @@ async function refresh() {
 async function copyAll() {
   if (!state.bundle) return
   try {
-    await navigator.clipboard.writeText(plainText(state.bundle.entries))
+    await navigator.clipboard.writeText(buildCopyText(state.bundle.entries, { ...settings }))
     flashToast('已复制全部字幕文本')
   } catch {
     flashToast('复制失败，请检查剪贴板权限')
@@ -127,7 +141,58 @@ function onDragEnd() {
           <button class="bsx-pill" :disabled="entryCount === 0" @click="copyAll">复制</button>
           <button class="bsx-pill" :disabled="entryCount === 0" @click="exportSrt">SRT</button>
           <button class="bsx-pill" @click="refresh">刷新</button>
+          <button class="bsx-pill" :class="{ on: settingsOpen }" @click="settingsOpen = !settingsOpen">设置</button>
         </div>
+
+        <transition name="bsx-fade">
+          <div v-if="settingsOpen" class="bsx-settings-mask" @click="settingsOpen = false">
+            <div class="bsx-settings" @click.stop>
+              <div class="bsx-settings-row">
+                <span class="bsx-settings-label">复制格式</span>
+                <span class="bsx-seg">
+                  <button
+                    class="bsx-seg-btn"
+                    :class="{ on: settings.format === 'paragraph' }"
+                    @click="updateSettings({ format: 'paragraph' })"
+                  >
+                    单段落
+                  </button>
+                  <button
+                    class="bsx-seg-btn"
+                    :class="{ on: settings.format === 'lines' }"
+                    @click="updateSettings({ format: 'lines' })"
+                  >
+                    逐行
+                  </button>
+                </span>
+              </div>
+              <div class="bsx-settings-row" :class="{ off: settings.format !== 'lines' }">
+                <span class="bsx-settings-label">逐行带时间戳</span>
+                <button
+                  class="bsx-switch"
+                  role="switch"
+                  :aria-checked="settings.timestamps"
+                  :disabled="settings.format !== 'lines'"
+                  @click="updateSettings({ timestamps: !settings.timestamps })"
+                >
+                  <span class="bsx-switch-dot"></span>
+                </button>
+              </div>
+              <div class="bsx-settings-row">
+                <span class="bsx-settings-label">自动添加标点</span>
+                <button
+                  class="bsx-switch"
+                  role="switch"
+                  :aria-checked="settings.punctuation"
+                  @click="updateSettings({ punctuation: !settings.punctuation })"
+                >
+                  <span class="bsx-switch-dot"></span>
+                </button>
+              </div>
+              <p class="bsx-settings-hint">设置自动保存，复制时按此格式输出</p>
+            </div>
+          </div>
+        </transition>
 
         <div class="bsx-status">
           <template v-if="state.status === 'loading'">正在获取字幕…</template>

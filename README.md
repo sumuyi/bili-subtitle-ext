@@ -8,8 +8,9 @@
 - 自动跟随 SPA 路由：切换视频 / 切换分 P 自动重新加载
 - 播放高亮同步（可开关）+ 点击字幕跳转进度
 - 复制全部文本 / 导出 SRT 文件
+- 复制格式可配置（设置面板）：单段落不换行 / 逐行，逐行可带 `[mm:ss]` 时间戳，自动标点开关
 - 多语言字幕轨切换（含 AI 字幕标识）
-- 浮窗可拖拽、可收起，位置与偏好本地记忆
+- 浮窗可拖拽、可收起，位置与偏好本地记忆；复制设置经 `chrome.storage.sync` 跨设备同步
 
 ## 开发
 
@@ -40,7 +41,9 @@ npm run build   # 产出 dist/ 生产构建
 │   ├── shared/
 │   │   ├── types.ts            # 共享类型
 │   │   ├── protocol.ts         # content ↔ background 消息协议
-│   │   └── srt.ts              # SRT 生成 / 时间格式化
+│   │   ├── srt.ts              # SRT 生成 / 时间格式化
+│   │   ├── copyText.ts         # 复制文本构建（自动标点 / 单段落 / 逐行）
+│   │   └── settings.ts         # 复制设置持久化（chrome.storage.sync）
 │   ├── background/
 │   │   ├── index.ts            # Service Worker 消息入口
 │   │   └── biliApi.ts          # B站 API 代理（view / 双源字幕 / 字幕JSON）

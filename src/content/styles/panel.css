@@ -14,12 +14,118 @@
 }
 
 .bsx-panel {
+  position: relative;
   background: rgba(255, 255, 255, 0.97);
   border-radius: 10px;
   box-shadow: 0 4px 24px rgba(26, 37, 55, 0.16);
   overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+.bsx-settings-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: rgba(26, 37, 55, 0.1);
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding: 38px 10px 0 0;
+}
+
+.bsx-settings {
+  width: 216px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(26, 37, 55, 0.2);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bsx-settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.bsx-settings-row.off {
+  opacity: 0.45;
+}
+
+.bsx-settings-label {
+  font-size: 12px;
+  color: #2c3a50;
+}
+
+.bsx-seg {
+  display: flex;
+  gap: 4px;
+  background: rgba(43, 108, 212, 0.07);
+  border-radius: 999px;
+  padding: 2px;
+}
+
+.bsx-seg-btn {
+  font-size: 11px;
+  color: #5b6b82;
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  padding: 1px 10px;
+  cursor: pointer;
+}
+
+.bsx-seg-btn.on {
+  color: #ffffff;
+  background: #2b6cd4;
+}
+
+.bsx-switch {
+  flex: none;
+  width: 30px;
+  height: 16px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(91, 107, 130, 0.25);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.15s;
+  padding: 0;
+}
+
+.bsx-switch-dot {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(26, 37, 55, 0.3);
+  transition: left 0.15s;
+}
+
+.bsx-switch[aria-checked='true'] {
+  background: #2b6cd4;
+}
+
+.bsx-switch[aria-checked='true'] .bsx-switch-dot {
+  left: 16px;
+}
+
+.bsx-switch:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.bsx-settings-hint {
+  font-size: 11px;
+  color: #8a97a8;
+  margin: 0;
 }
 
 .bsx-header {

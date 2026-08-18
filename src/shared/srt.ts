@@ -26,7 +26,3 @@ export function fmtPlayTime(sec: number): string {
   const p2 = (n: number) => String(n).padStart(2, '0')
   return h > 0 ? `${h}:${p2(m)}:${p2(s)}` : `${p2(m)}:${p2(s)}`
 }
-
-export function plainText(entries: SubtitleEntry[]): string {
-  return entries.map((e) => e.content).join('\n')
-}
