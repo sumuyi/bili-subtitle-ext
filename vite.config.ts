@@ -8,5 +8,11 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
+    // offscreen 页不在 manifest 中声明，crxjs 不会自动打包，需显式入口且保持原路径
+    rollupOptions: {
+      input: {
+        'src/offscreen/index': 'src/offscreen/index.html',
+      },
+    },
   },
 })

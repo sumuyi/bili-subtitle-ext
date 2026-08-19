@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>B站字幕提取器 · 转写设置</title>
+    <style>
+      body {
+        margin: 0;
+        background: #f4f6f9;
+        font-family: 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', system-ui, sans-serif;
+        color: #1a2537;
+        font-size: 14px;
+      }
+      .wrap {
+        max-width: 560px;
+        margin: 40px auto;
+        padding: 0 16px;
+      }
+      h1 {
+        font-size: 18px;
+        margin: 0 0 4px;
+      }
+      .sub {
+        font-size: 12px;
+        color: #5b6b82;
+        margin: 0 0 20px;
+      }
+      .card {
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 24px rgba(26, 37, 55, 0.08);
+        padding: 18px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .row label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+      .row input,
+      .row select {
+        width: 100%;
+        box-sizing: border-box;
+        font-size: 13px;
+        padding: 6px 10px;
+        border: none;
+        border-radius: 8px;
+        background: rgba(43, 108, 212, 0.06);
+        color: #1a2537;
+        outline: none;
+      }
+      .row input:focus,
+      .row select:focus {
+        background: rgba(43, 108, 212, 0.1);
+      }
+      .hint {
+        font-size: 11px;
+        color: #8a97a8;
+        margin: 3px 0 0;
+      }
+      .actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      button {
+        font-size: 13px;
+        color: #fff;
+        background: #2b6cd4;
+        border: none;
+        border-radius: 999px;
+        padding: 6px 18px;
+        cursor: pointer;
+      }
+      button.ghost {
+        color: #2b6cd4;
+        background: rgba(43, 108, 212, 0.08);
+      }
+      .msg {
+        font-size: 12px;
+      }
+      .msg.ok { color: #2e9e5b; }
+      .msg.err { color: #d4506a; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>AI 转写设置</h1>
+      <p class="sub">无字幕视频自动抓取音频，调用 OpenAI 兼容语音识别接口生成文本</p>
+      <div class="card">
+        <div class="row">
+          <label for="provider">服务商</label>
+          <select id="provider">
+            <option value="groq">Groq（海外，Whisper，免费额度大）</option>
+            <option value="siliconflow">硅基流动（国内直连，SenseVoice，免费）</option>
+            <option value="openai">OpenAI（海外，付费）</option>
+            <option value="custom">自定义（OpenAI 兼容）</option>
+          </select>
+          <p class="hint">选择后自动填充地址与推荐模型，也可手动修改</p>
+        </div>
+        <div class="row">
+          <label for="baseUrl">接口地址（OpenAI 兼容）</label>
+          <input id="baseUrl" placeholder="https://api.siliconflow.cn/v1" />
+          <p class="hint">硅基流动国内直连无需代理；Groq / OpenAI 需要网络代理</p>
+        </div>
+        <div class="row">
+          <label for="apiKey">API Key</label>
+          <input id="apiKey" type="password" placeholder="sk-..." />
+          <p class="hint">硅基流动：cloud.siliconflow.cn → API 密钥（手机号注册送额度，SenseVoice 免费）；Key 仅保存在你的浏览器同步存储中</p>
+        </div>
+        <div class="row">
+          <label for="model">模型</label>
+          <input id="model" placeholder="FunAudioLLM/SenseVoiceSmall" />
+          <p class="hint">硅基流动推荐 FunAudioLLM/SenseVoiceSmall（中文效果好，免费）；Groq 推荐 whisper-large-v3-turbo（带分段时间戳）</p>
+        </div>
+        <div class="row">
+          <label for="language">识别语言</label>
+          <select id="language">
+            <option value="">自动检测</option>
+            <option value="zh">中文</option>
+            <option value="en">英语</option>
+            <option value="ja">日语</option>
+            <option value="ko">韩语</option>
+          </select>
+          <p class="hint">仅对 Whisper 系模型生效；SenseVoice 自带语种检测</p>
+        </div>
+        <div class="actions">
+          <button id="save">保存</button>
+          <button id="test" class="ghost">测试连接</button>
+          <span id="msg" class="msg"></span>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

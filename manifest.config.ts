@@ -9,6 +9,10 @@ export default defineManifest({
     service_worker: 'src/background/index.ts',
     type: 'module',
   },
+  options_ui: {
+    page: 'src/options/index.html',
+    open_in_tab: true,
+  },
   content_scripts: [
     {
       matches: ['https://www.bilibili.com/video/*'],
@@ -16,6 +20,16 @@ export default defineManifest({
       run_at: 'document_idle',
     },
   ],
-  host_permissions: ['*://*.bilibili.com/*', '*://*.hdslb.com/*'],
-  permissions: ['storage'],
+  host_permissions: [
+    '*://*.bilibili.com/*',
+    '*://*.hdslb.com/*',
+    '*://*.bilivideo.com/*',
+    '*://*.bilivideo.cn/*',
+    '*://*.akamaized.net/*',
+    '*://*.szbdyd.com/*',
+    'https://api.groq.com/*',
+    'https://api.openai.com/*',
+    'https://api.siliconflow.cn/*',
+  ],
+  permissions: ['storage', 'offscreen', 'declarativeNetRequest'],
 })

@@ -3,6 +3,33 @@ import App from './App.vue'
 import panelCss from './styles/panel.css?raw'
 import { onRouteChange, parseRoute } from './router'
 import { loadSubtitles, state } from './store'
+import { MSG } from '../shared/protocol'
+
+// background → content script 音频下载回退：SW 被 CDN 403 时，用页面上下文（origin=bilibili.com）下载
+chrome.runtime.onMessage.addListener((req: any, _sender, sendResponse: (r: any) => void) => {
+  if (req?.type === MSG.FETCH_AUDIO) {
+    void (async () => {
+      try {
+        const res = await fetch(req.url, { credentials: 'include' })
+        if (!res.ok) {
+          sendResponse({ ok: false, message: `HTTP ${res.status}` })
+          return
+        }
+        const buf = await res.arrayBuffer()
+        const reader = new FileReader()
+        reader.onload = () => {
+          const base64 = (reader.result as string).split(',')[1]
+          sendResponse({ ok: true, data: base64 })
+        }
+        reader.onerror = () => sendResponse({ ok: false, message: 'FileReader error' })
+        reader.readAsDataURL(new Blob([buf]))
+      } catch (e: any) {
+        sendResponse({ ok: false, message: `${e?.name ?? 'Error'}: ${e?.message ?? 'fetch failed'}` })
+      }
+    })()
+    return true
+  }
+})
 
 const host = document.createElement('div')
 host.id = 'bili-subtitle-ext-host'

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { loadSubtitles, setPref, state, switchTrack } from './store'
+import { loadSubtitles, openOptions, setPref, state, switchTrack, transcribe } from './store'
 import { buildSrt } from '../shared/srt'
 import { buildCopyText } from '../shared/copyText'
 import { DEFAULT_COPY_SETTINGS, loadCopySettings, saveCopySettings, type CopySettings } from '../shared/settings'
@@ -140,6 +140,7 @@ function onDragEnd() {
           </button>
           <button class="bsx-pill" :disabled="entryCount === 0" @click="copyAll">复制</button>
           <button class="bsx-pill" :disabled="entryCount === 0" @click="exportSrt">SRT</button>
+          <button class="bsx-pill" :disabled="state.transcribing" @click="transcribe">AI转写</button>
           <button class="bsx-pill" @click="refresh">刷新</button>
           <button class="bsx-pill" :class="{ on: settingsOpen }" @click="settingsOpen = !settingsOpen">设置</button>
         </div>
@@ -195,7 +196,15 @@ function onDragEnd() {
         </transition>
 
         <div class="bsx-status">
-          <template v-if="state.status === 'loading'">正在获取字幕…</template>
+          <template v-if="state.transcribing">
+            <div class="bsx-progress-wrap">
+              <div class="bsx-progress-bar">
+                <div class="bsx-progress-fill" :style="{ width: state.transcribePercent + '%' }"></div>
+              </div>
+              <span class="bsx-progress-text">{{ state.transcribeStage }} {{ state.transcribePercent }}%</span>
+            </div>
+          </template>
+          <template v-else-if="state.status === 'loading'">正在获取字幕…</template>
           <template v-else-if="state.status === 'ready'">
             {{ owner ? `${owner} · ` : '' }}{{ entryCount }} 条字幕
           </template>
@@ -209,9 +218,16 @@ function onDragEnd() {
 
         <div v-else-if="state.status === 'error'" class="bsx-empty">
           <p class="bsx-error">{{ state.error }}</p>
-          <p v-if="state.reason === 'NO_SUBTITLE'" class="bsx-hint">
-            AI 字幕需要视频播放器生成过才存在，可播放片刻后点「刷新」重试。
-          </p>
+          <template v-if="state.reason === 'NO_SUBTITLE'">
+            <button class="bsx-pill bsx-transcribe-btn" :disabled="state.transcribing" @click="transcribe">
+              AI 转写音频 → 文本
+            </button>
+            <p class="bsx-hint">没有现成字幕时，抓取音频流调用语音识别生成文本（需在设置页配置 API Key）</p>
+          </template>
+          <template v-else-if="state.reason === 'NO_ASR_KEY'">
+            <button class="bsx-pill bsx-transcribe-btn" @click="openOptions">去设置 API Key</button>
+            <p class="bsx-hint">默认使用 Groq（免费额度），也可换 OpenAI 或任意兼容接口</p>
+          </template>
           <p v-else-if="state.reason === 'NOT_LOGGED_IN'" class="bsx-hint">
             请先登录 B 站（字幕接口需要登录态），登录后点「刷新」。
           </p>

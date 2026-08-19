@@ -1,5 +1,5 @@
 import { reactive } from 'vue'
-import { MSG, type SubtitlesResponse, type TrackResponse } from '../shared/protocol'
+import { MSG, type SubtitlesResponse, type TrackResponse, type TranscribeResponse } from '../shared/protocol'
 import type { SubtitleBundle } from '../shared/types'
 
 export interface PanelState {
@@ -11,6 +11,9 @@ export interface PanelState {
   autoScroll: boolean
   collapsed: boolean
   visible: boolean
+  transcribing: boolean
+  transcribePercent: number
+  transcribeStage: string
 }
 
 const saved = readSaved()
@@ -24,6 +27,9 @@ export const state = reactive<PanelState>({
   autoScroll: saved.autoScroll ?? true,
   collapsed: saved.collapsed ?? false,
   visible: true,
+  transcribing: false,
+  transcribePercent: 0,
+  transcribeStage: '',
 })
 
 function readSaved(): Partial<Record<'autoScroll' | 'collapsed', boolean>> {
@@ -52,6 +58,9 @@ export async function loadSubtitles(bvid: string, page: number): Promise<void> {
   state.error = ''
   state.reason = ''
   state.currentIndex = -1
+  state.transcribing = false
+  state.transcribePercent = 0
+  state.transcribeStage = ''
   const resp: SubtitlesResponse = await chrome.runtime.sendMessage({
     type: MSG.GET_SUBTITLES,
     bvid,
@@ -67,6 +76,51 @@ export async function loadSubtitles(bvid: string, page: number): Promise<void> {
     state.reason = resp?.reason ?? 'NETWORK'
   }
 }
+
+export async function transcribe(): Promise<void> {
+  const m = location.pathname.match(/\/video\/(BV[0-9A-Za-z]+)/)
+  if (!m || state.transcribing) return
+  const id = ++runId
+  const page = Number(new URLSearchParams(location.search).get('p')) || 1
+  state.transcribing = true
+  state.transcribePercent = 0
+  state.transcribeStage = '正在准备…'
+  const resp: TranscribeResponse = await chrome.runtime.sendMessage({
+    type: MSG.TRANSCRIBE,
+    bvid: m[1],
+    page,
+  })
+  if (id !== runId) return
+  state.transcribing = false
+  state.transcribeStage = ''
+  if (resp?.ok) {
+    state.bundle = {
+      meta: resp.data.meta,
+      tracks: [{ lan: 'asr', lanDoc: 'AI 转写', aiStatus: 1, url: '' }],
+      activeIndex: 0,
+      entries: resp.data.entries,
+    }
+    state.status = 'ready'
+    state.error = ''
+    state.reason = ''
+  } else {
+    state.error = resp?.message ?? '转写失败'
+    state.reason = resp?.reason ?? 'NETWORK'
+    if (state.status !== 'error') state.status = 'error'
+  }
+}
+
+export function openOptions(): void {
+  void chrome.runtime.sendMessage({ type: MSG.OPEN_OPTIONS })
+}
+
+// background → content 进度推送
+chrome.runtime.onMessage.addListener((req: any) => {
+  if (req?.type === MSG.TRANSCRIBE_PROGRESS) {
+    state.transcribePercent = Number(req.percent) || 0
+    state.transcribeStage = String(req.stage ?? '')
+  }
+})
 
 export async function switchTrack(index: number): Promise<void> {
   const bundle = state.bundle

@@ -102,3 +102,51 @@ export async function fetchSubtitleJson(url: string): Promise<SubtitleEntry[]> {
     .filter((e) => e.content)
     .sort((a, b) => a.from - b.from)
 }
+
+/** 取 mp4 URL（fnval=0 非 DASH，含备用 CDN）。mp4 包含音视频，decodeAudioData 可提取音频 */
+export function getAudioUrls(j: any): string[] {
+  const durls: any[] = j.data?.durl ?? []
+  if (durls.length === 0) return []
+  const first = durls[0]
+  const urls = [first.url, ...(first.backup_url ?? first.backupUrl ?? [])]
+  return urls.map((u: any) => normalizeUrl(String(u))).filter(Boolean)
+}
+
+export async function getPlayurl(bvid: string, cid: number): Promise<any> {
+  const j = await getJson(`https://api.bilibili.com/x/player/playurl?bvid=${bvid}&cid=${cid}&qn=16&fnval=0&fnver=0&fourk=0`)
+  if (j.code !== 0) {
+    throw new BiliError(j.message || '音频流获取失败', j.code === -404 ? 'NOT_FOUND' : 'NETWORK')
+  }
+  return j
+}
+
+/** 在 SW 中下载音频流，baseUrl 403/失败时依次回退备用 CDN。DNR 规则把 Origin/Referer 改成 bilibili.com */
+export async function fetchAudioData(urls: string[], referrer: string): Promise<ArrayBuffer> {
+  let lastError = '没有可用音频地址'
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, {
+        credentials: 'include',
+        referrer,
+        headers: { Accept: '*/*' },
+      })
+      if (!res.ok) {
+        const respHeaders: Record<string, string> = {}
+        res.headers.forEach((v, k) => { respHeaders[k] = v })
+        let dnrInfo = 'DNR unavailable'
+        try {
+          const rules = await chrome.declarativeNetRequest.getDynamicRules()
+          dnrInfo = `DNR rules=${rules.length} ids=[${rules.map((r) => r.id).join(',')}]`
+        } catch (e: any) {
+          dnrInfo = `DNR check failed: ${e?.message ?? 'unknown'}`
+        }
+        lastError = `HTTP ${res.status} | host=${new URL(url).host} | respHeaders=${JSON.stringify(respHeaders)} | ${dnrInfo}`
+        continue
+      }
+      return await res.arrayBuffer()
+    } catch (e: any) {
+      lastError = `${e?.message || 'fetch error'} | host=${url.slice(0, 60)}`
+    }
+  }
+  throw new BiliError(`音频下载失败: ${lastError}`, 'NETWORK')
+}

@@ -28,4 +28,4 @@ export interface SubtitleBundle {
   entries: SubtitleEntry[]
 }
 
-export type FailReason = 'NO_SUBTITLE' | 'NOT_LOGGED_IN' | 'NOT_FOUND' | 'NETWORK'
+export type FailReason = 'NO_SUBTITLE' | 'NOT_LOGGED_IN' | 'NOT_FOUND' | 'NETWORK' | 'NO_ASR_KEY'
